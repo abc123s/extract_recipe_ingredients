@@ -4,6 +4,7 @@ from tensorflow import keras
 import numpy as np
 
 from preprocess import preprocess
+from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 
 train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
 BUFFER_SIZE = 1000
@@ -26,7 +27,7 @@ model.summary()
 model.compile(
     optimizer="adam",
     loss=tf.losses.SparseCategoricalCrossentropy(from_logits = True),
-    metrics=['accuracy']
+    metrics=[SparseCategoricalAccuracyMaskZeros(name = "masked_accuracy"), 'accuracy']
 )
 
 history = model.fit(
@@ -36,9 +37,10 @@ history = model.fit(
     validation_steps=30,
 )
 
-loss, accuracy = model.evaluate(dev_batches)
+loss, masked_accuracy, accuracy = model.evaluate(dev_batches)
 
 print("Loss: ", loss)
+print("Masked Accuracy: ", masked_accuracy)
 print("Accuracy: ", accuracy)
 
 predict_model = keras.Sequential([
