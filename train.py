@@ -25,7 +25,15 @@ dev_batches = dev_data.padded_batch(128, padded_shapes = ([None], [None]))
 
 # build model:
 ARCHITECTURE = "rnn"
-model = build_model(ARCHITECTURE, word_encoder.vocab_size, tag_encoder.vocab_size)
+EMBEDDING_UNITS = 128
+RECURRENT_UNITS = 512
+model = build_model(
+    architecture = ARCHITECTURE,
+    embedding_units = EMBEDDING_UNITS,
+    recurrent_units = RECURRENT_UNITS,
+    vocab_size = word_encoder.vocab_size,
+    tag_size = tag_encoder.vocab_size,
+)
 
 # compile model:
 OPTIMIZER = "adam"
@@ -82,6 +90,9 @@ model.save_weights(experiment_dir + "/model_weights")
 f = open(experiment_dir + "/results.txt", "w")
 
 f.write("Params\n")
+f.write("ARCHITECTURE: " + ARCHITECTURE + "\n")
+f.write("EMBEDDING_UNITS: " + str(EMBEDDING_UNITS) + "\n")
+f.write("RECURRENT_UNITS: " + str(RECURRENT_UNITS) + "\n")
 f.write("ARCHITECTURE: " + ARCHITECTURE + "\n")
 f.write("OPTIMIZER: " + OPTIMIZER + "\n")
 f.write("EPOCHS: " + str(EPOCHS) + "\n")
