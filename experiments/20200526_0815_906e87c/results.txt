@@ -1,0 +1,13 @@
+Params
+ARCHITECTURE: blstm
+OPTIMIZER: adam
+EPOCHS: 10
+TRAIN_SIZE: 169207
+
+Sentence-Level Stats:
+	correct: 2897
+	total: 4995
+	% correct: 57.997997997998
+
+Word-Level Stats:
+	% correct:78.98613214492798

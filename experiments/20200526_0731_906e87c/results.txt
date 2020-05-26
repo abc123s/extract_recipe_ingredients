@@ -1,0 +1,13 @@
+Params
+ARCHITECTURE: gru
+OPTIMIZER: adam
+EPOCHS: 10
+TRAIN_SIZE: 169207
+
+Sentence-Level Stats:
+	correct: 2865
+	total: 4995
+	% correct: 57.35735735735735
+
+Word-Level Stats:
+	% correct:78.40650677680969

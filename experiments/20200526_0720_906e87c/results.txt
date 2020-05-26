@@ -1,0 +1,13 @@
+Params
+ARCHITECTURE: brnn
+OPTIMIZER: adam
+EPOCHS: 10
+TRAIN_SIZE: 169207
+
+Sentence-Level Stats:
+	correct: 2822
+	total: 4995
+	% correct: 56.4964964964965
+
+Word-Level Stats:
+	% correct:78.37448120117188
