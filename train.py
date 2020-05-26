@@ -11,17 +11,17 @@ from preprocess import preprocess
 from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 
-TRAIN_SIZE = 5000
-
 train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
+
+TRAIN_SIZE = 169207
 BUFFER_SIZE = 1000
 train_batches = (train_data
     .take(TRAIN_SIZE)
     .shuffle(BUFFER_SIZE)
-    .padded_batch(32, padded_shapes = ([None], [None]))
+    .padded_batch(128, padded_shapes = ([None], [None]))
 )
 
-dev_batches = dev_data.padded_batch(32, padded_shapes = ([None], [None]))
+dev_batches = dev_data.padded_batch(128, padded_shapes = ([None], [None]))
 
 # build model:
 ARCHITECTURE = "rnn"
@@ -41,7 +41,7 @@ history = model.fit(
     train_batches,
     epochs = EPOCHS,
     validation_data=dev_batches,
-    validation_steps=30,
+    validation_steps=8,
 )
 
 # evaluate model:
@@ -53,7 +53,7 @@ loss, tag_accuracy = model.evaluate(dev_batches)
 # Sentence-level accuracy
 sentence_correct = 0
 sentence_total = 0
-for dev_example, dev_label in dev_data.take(1000):
+for dev_example, dev_label in dev_data:
     prediction = keras.backend.flatten(
         keras.backend.argmax(
             model(np.array([dev_example]))
@@ -96,3 +96,4 @@ f.write("Word-Level Stats:\n")
 f.write("\t% correct:" + str(100 * tag_accuracy) + "\n")
 
 f.close()
+

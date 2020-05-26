@@ -8,7 +8,7 @@ def build_model(architecture, vocab_size, tag_size):
             keras.layers.Dense(tag_size),
         ])
 
-    if architecture == 'birnn':
+    if architecture == 'brnn':
         return keras.Sequential([
             keras.layers.Embedding(vocab_size, 64, mask_zero = True),
             keras.layers.Bidirectional(keras.layers.SimpleRNN(64, return_sequences=True)),
