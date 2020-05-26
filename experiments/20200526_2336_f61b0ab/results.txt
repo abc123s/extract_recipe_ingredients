@@ -1,0 +1,16 @@
+Params
+ARCHITECTURE: bgru
+EMBEDDING_UNITS: 128
+RECURRENT_UNITS: 512
+ARCHITECTURE: bgru
+OPTIMIZER: adam
+EPOCHS: 10
+TRAIN_SIZE: 169207
+
+Sentence-Level Stats:
+	correct: 2865
+	total: 4995
+	% correct: 57.35735735735735
+
+Word-Level Stats:
+	% correct:78.55061292648315

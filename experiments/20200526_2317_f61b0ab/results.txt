@@ -1,0 +1,16 @@
+Params
+ARCHITECTURE: blstm
+EMBEDDING_UNITS: 128
+RECURRENT_UNITS: 512
+ARCHITECTURE: blstm
+OPTIMIZER: adam
+EPOCHS: 10
+TRAIN_SIZE: 169207
+
+Sentence-Level Stats:
+	correct: 2902
+	total: 4995
+	% correct: 58.09809809809809
+
+Word-Level Stats:
+	% correct:79.34159636497498
