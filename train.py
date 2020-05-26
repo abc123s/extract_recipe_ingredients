@@ -27,10 +27,15 @@ dev_batches = dev_data.padded_batch(128, padded_shapes = ([None], [None]))
 ARCHITECTURE = "rnn"
 EMBEDDING_UNITS = 128
 RECURRENT_UNITS = 512
+DROPOUT_RATE = 0.2
+RECURRENT_DROPOUT_RATE = 0.2
+
 model = build_model(
     architecture = ARCHITECTURE,
     embedding_units = EMBEDDING_UNITS,
     recurrent_units = RECURRENT_UNITS,
+    dropout_rate = DROPOUT_RATE,
+    recurrent_dropout_rate = RECURRENT_DROPOUT_RATE,
     vocab_size = word_encoder.vocab_size,
     tag_size = tag_encoder.vocab_size,
 )
@@ -93,7 +98,8 @@ f.write("Params\n")
 f.write("ARCHITECTURE: " + ARCHITECTURE + "\n")
 f.write("EMBEDDING_UNITS: " + str(EMBEDDING_UNITS) + "\n")
 f.write("RECURRENT_UNITS: " + str(RECURRENT_UNITS) + "\n")
-f.write("ARCHITECTURE: " + ARCHITECTURE + "\n")
+f.write("DROPOUT_RATE: " + str(DROPOUT_RATE) + "\n")
+f.write("RECURRENT_DROPOUT_RATE: " + str(RECURRENT_DROPOUT_RATE) + "\n")
 f.write("OPTIMIZER: " + OPTIMIZER + "\n")
 f.write("EPOCHS: " + str(EPOCHS) + "\n")
 f.write("TRAIN_SIZE: " + str(TRAIN_SIZE) + "\n\n")
