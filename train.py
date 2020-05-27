@@ -85,7 +85,7 @@ with open(experiment_dir + "/params.json", "w") as f:
 model.save_weights(experiment_dir + "/model_weights")
 
 # evaluate model and save metrics:
-evaluation = evaluate(model, train_data.take(TRAIN_SIZE), dev_data)
+evaluation = evaluate(model, train_batches, dev_batches)
 
 with open(experiment_dir + "/results.json", "w") as f:
     json.dump(evaluation, f, indent = 4)
