@@ -50,6 +50,15 @@ model.compile(
     metrics=[SparseCategoricalAccuracyMaskZeros(name = "accuracy")]
 )
 
+# make experiment directory and save experiment params down
+date_string = datetime.now().strftime("%Y%m%d_%H%M")
+commit_string = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).strip().decode("utf-8")
+experiment_dir = "experiments/" + date_string + "_" + commit_string
+os.mkdir(experiment_dir)
+
+# add tensorboard logs
+epoch_tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir = experiment_dir + "/epoch_logs", histogram_freq=1)
+
 # fit model:
 EPOCHS = 10
 history = model.fit(
@@ -57,14 +66,10 @@ history = model.fit(
     epochs = EPOCHS,
     validation_data=dev_batches,
     validation_steps=8,
+    callbacks = [epoch_tensorboard_callback]
 )
 
-# make experiment directory and save experiment params down
-date_string = datetime.now().strftime("%Y%m%d_%H%M")
-commit_string = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).strip().decode("utf-8")
-experiment_dir = "experiments/" + date_string + "_" + commit_string
-os.mkdir(experiment_dir)
-
+# save params down
 with open(experiment_dir + "/params.json", "w") as f:
     json.dump(
         {
