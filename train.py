@@ -16,10 +16,10 @@ from evaluate import evaluate
 train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
 
 TRAIN_SIZE = 169207
-BUFFER_SIZE = 1000
+SHUFFLE_BUFFER_SIZE = 200000
 train_batches = (train_data
     .take(TRAIN_SIZE)
-    .shuffle(BUFFER_SIZE)
+    .shuffle(SHUFFLE_BUFFER_SIZE)
     .padded_batch(128, padded_shapes = ([None], [None]))
 )
 
@@ -81,6 +81,7 @@ with open(experiment_dir + "/params.json", "w") as f:
             "OPTIMIZER": OPTIMIZER,
             "EPOCHS": EPOCHS,
             "TRAIN_SIZE": TRAIN_SIZE,
+            "SHUFFLE_BUFFER_SIZE": SHUFFLE_BUFFER_SIZE,
         }, 
         f,
         indent = 4
