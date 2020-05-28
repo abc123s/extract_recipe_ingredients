@@ -1,0 +1,22 @@
+{
+    "Train": {
+        "Tag-Level Stats": {
+            "Accuracy": 0.8302658796310425
+        },
+        "Sentence-Level Stats": {
+            "Correct": 105022,
+            "Total": 169072,
+            "Accuracy": 0.6211673133339642
+        }
+    },
+    "Dev": {
+        "Tag-Level Stats": {
+            "Accuracy": 0.7921350002288818
+        },
+        "Sentence-Level Stats": {
+            "Correct": 2911,
+            "Total": 4995,
+            "Accuracy": 0.5827827827827828
+        }
+    }
+}
