@@ -1,84 +1,96 @@
 from tensorflow import keras
 
+def build_recurrent_layers(architecture, num_layers, units, dropout_rate, recurrent_dropout_rate):
+    layers = []
+
+    if architecture == 'rnn':
+        for _ in range(num_layers):
+            layers.append(
+                keras.layers.SimpleRNN(
+                    units,
+                    dropout = dropout_rate,
+                    recurrent_dropout = recurrent_dropout_rate,
+                    return_sequences = True
+                )
+            )
+
+    if architecture == 'brnn':
+        for _ in range(num_layers):
+            layers.append(
+                keras.layers.Bidirectional(keras.layers.SimpleRNN(
+                    units,
+                    dropout = dropout_rate,
+                    recurrent_dropout = recurrent_dropout_rate,
+                    return_sequences = True
+                ))
+            )
+
+    if architecture == 'gru':
+        for _ in range(num_layers):
+            layers.append(
+                keras.layers.GRU(
+                    units,
+                    dropout = dropout_rate,
+                    recurrent_dropout = recurrent_dropout_rate,
+                    return_sequences = True
+                )
+            )
+
+    if architecture == 'bgru':
+        for _ in range(num_layers):
+            layers.append(
+                keras.layers.Bidirectional(keras.layers.GRU(
+                    units,
+                    dropout = dropout_rate,
+                    recurrent_dropout = recurrent_dropout_rate,
+                    return_sequences = True
+                ))
+            )
+
+    if architecture == 'lstm':
+        for _ in range(num_layers):
+            layers.append(
+                keras.layers.LSTM(
+                    units,
+                    dropout = dropout_rate,
+                    recurrent_dropout = recurrent_dropout_rate,
+                    return_sequences = True
+                )
+            )
+
+    if architecture == 'blstm':
+        for _ in range(num_layers):
+            layers.append(
+                keras.layers.Bidirectional(keras.layers.LSTM(
+                    units,
+                    dropout = dropout_rate,
+                    recurrent_dropout = recurrent_dropout_rate,
+                    return_sequences = True
+                ))
+            )
+    
+    return layers
+
 def build_model(
     architecture,
     embedding_units,
+    num_recurrent_layers,
     recurrent_units,
     dropout_rate,
     recurrent_dropout_rate,
     vocab_size,
     tag_size
 ):
-    if architecture == 'rnn':
-        return keras.Sequential([
-            keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
-            keras.layers.SimpleRNN(
-                recurrent_units,
-                dropout = dropout_rate,
-                recurrent_dropout = recurrent_dropout_rate,
-                return_sequences = True
-            ),
-            keras.layers.Dense(tag_size),
-        ])
+    recurrent_layers = build_recurrent_layers(
+        architecture,
+        num_recurrent_layers,
+        recurrent_units,
+        dropout_rate,
+        recurrent_dropout_rate,
+    )
 
-    if architecture == 'brnn':
-        return keras.Sequential([
-            keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
-            keras.layers.Bidirectional(keras.layers.SimpleRNN(
-                recurrent_units,
-                dropout = dropout_rate,
-                recurrent_dropout = recurrent_dropout_rate,
-                return_sequences = True
-            )),
-            keras.layers.Dense(tag_size),
-        ])
-
-    if architecture == 'gru':
-        return keras.Sequential([
-            keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
-            keras.layers.GRU(
-                recurrent_units,
-                dropout = dropout_rate,
-                recurrent_dropout = recurrent_dropout_rate,
-                return_sequences = True
-            ),
-            keras.layers.Dense(tag_size),
-        ])
-
-    if architecture == 'bgru':
-        return keras.Sequential([
-            keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
-            keras.layers.Bidirectional(keras.layers.GRU(
-                recurrent_units,
-                dropout = dropout_rate,
-                recurrent_dropout = recurrent_dropout_rate,
-                return_sequences = True
-            )),
-            keras.layers.Dense(tag_size),
-        ])
-
-    if architecture == 'lstm':
-        return keras.Sequential([
-            keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
-            keras.layers.LSTM(
-                recurrent_units,
-                dropout = dropout_rate,
-                recurrent_dropout = recurrent_dropout_rate,
-                return_sequences = True
-            ),
-            keras.layers.Dense(tag_size),
-        ])
-
-    if architecture == 'blstm':
-        return keras.Sequential([
-            keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
-            keras.layers.Bidirectional(keras.layers.LSTM(
-                recurrent_units,
-                dropout = dropout_rate,
-                recurrent_dropout = recurrent_dropout_rate,
-                return_sequences = True
-            )),
-            keras.layers.Dense(tag_size),
-        ])
-    
-    
+    return keras.Sequential([
+        keras.layers.Embedding(vocab_size, embedding_units, mask_zero = True),
+        *recurrent_layers,
+        keras.layers.Dense(tag_size),
+    ])

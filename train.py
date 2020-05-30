@@ -29,11 +29,13 @@ dev_batches = dev_data.padded_batch(128, padded_shapes = ([None], [None]))
 ARCHITECTURE = "rnn"
 EMBEDDING_UNITS = 128
 RECURRENT_UNITS = 512
-DROPOUT_RATE = 0.2
-RECURRENT_DROPOUT_RATE = 0.2
+NUM_RECURRENT_LAYERS = 2
+DROPOUT_RATE = 0
+RECURRENT_DROPOUT_RATE = 0
 
 model = build_model(
     architecture = ARCHITECTURE,
+    num_recurrent_layers = 2,
     embedding_units = EMBEDDING_UNITS,
     recurrent_units = RECURRENT_UNITS,
     dropout_rate = DROPOUT_RATE,
@@ -60,7 +62,7 @@ os.mkdir(experiment_dir)
 epoch_tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir = experiment_dir + "/epoch_logs", histogram_freq=1)
 
 # fit model:
-EPOCHS = 10
+EPOCHS = 6
 history = model.fit(
     train_batches,
     epochs = EPOCHS,
@@ -76,6 +78,7 @@ with open(experiment_dir + "/params.json", "w") as f:
             "ARCHITECTURE": ARCHITECTURE,
             "EMBEDDING_UNITS": EMBEDDING_UNITS,
             "RECURRENT_UNITS": RECURRENT_UNITS,
+            "NUM_RECURRENT_LAYERS": NUM_RECURRENT_LAYERS,
             "DROPOUT_RATE": DROPOUT_RATE,
             "RECURRENT_DROPOUT_RATE": RECURRENT_DROPOUT_RATE,
             "OPTIMIZER": OPTIMIZER,
