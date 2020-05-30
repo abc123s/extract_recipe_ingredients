@@ -35,7 +35,7 @@ RECURRENT_DROPOUT_RATE = 0
 
 model = build_model(
     architecture = ARCHITECTURE,
-    num_recurrent_layers = 2,
+    num_recurrent_layers = NUM_RECURRENT_LAYERS,
     embedding_units = EMBEDDING_UNITS,
     recurrent_units = RECURRENT_UNITS,
     dropout_rate = DROPOUT_RATE,
@@ -62,7 +62,7 @@ os.mkdir(experiment_dir)
 epoch_tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir = experiment_dir + "/epoch_logs", histogram_freq=1)
 
 # fit model:
-EPOCHS = 6
+EPOCHS = 10
 history = model.fit(
     train_batches,
     epochs = EPOCHS,
