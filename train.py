@@ -71,7 +71,7 @@ history = model.fit(
     train_batches,
     epochs = EPOCHS,
     validation_data=dev_batches,
-    validation_steps=8,
+    validation_steps=40,
     callbacks = [epoch_tensorboard_callback]
 )
 
