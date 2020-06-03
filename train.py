@@ -26,10 +26,12 @@ train_batches = (train_data
 dev_batches = dev_data.padded_batch(128, padded_shapes = ([None], [None]))
 
 # build model:
-ARCHITECTURE = "rnn"
+ARCHITECTURE = "lstm"
 EMBEDDING_UNITS = 128
 RECURRENT_UNITS = 512
-NUM_RECURRENT_LAYERS = 2
+NUM_RECURRENT_LAYERS = 1
+REGULARIZER = 'l2'
+REGULARIZATION_FACTOR = 0.01
 DROPOUT_RATE = 0
 RECURRENT_DROPOUT_RATE = 0
 
@@ -38,6 +40,8 @@ model = build_model(
     num_recurrent_layers = NUM_RECURRENT_LAYERS,
     embedding_units = EMBEDDING_UNITS,
     recurrent_units = RECURRENT_UNITS,
+    regularizer = REGULARIZER,
+    regularization_factor = REGULARIZATION_FACTOR,
     dropout_rate = DROPOUT_RATE,
     recurrent_dropout_rate = RECURRENT_DROPOUT_RATE,
     vocab_size = word_encoder.vocab_size,
