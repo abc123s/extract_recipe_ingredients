@@ -7,7 +7,7 @@ from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 from evaluate import evaluate
 
-experiment_dir = "experiments/20200527_0415_9f6255d"
+experiment_dir = "experiments/20200602_2058_df1046b"
 
 # load experiment params
 with open(experiment_dir + "/params.json", "r") as f:
@@ -22,8 +22,11 @@ train_data = all_train_data.take(params["TRAIN_SIZE"])
 model = build_model(
     architecture = params["ARCHITECTURE"],
     embedding_units = params["EMBEDDING_UNITS"],
+    num_recurrent_layers = params.get("NUM_RECURRENT_LAYERS", 1),
     recurrent_units = params["RECURRENT_UNITS"],
-    dropout_rate = params["DROPOUT_RATE"],
+    regularizer = params.get("REGULARIZER", None),
+    regularization_factor = params.get("REGULARIZATION_FACTOR", 0),
+    dropout_rate = params.get("DROPOUT_RATE", 0),
     recurrent_dropout_rate = params["RECURRENT_DROPOUT_RATE"],
     vocab_size = word_encoder.vocab_size,
     tag_size = tag_encoder.vocab_size,

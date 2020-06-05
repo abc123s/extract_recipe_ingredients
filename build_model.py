@@ -16,6 +16,8 @@ def build_recurrent_layers(
         regularizer = keras.regularizers.l1(regularization_factor)
     elif regularizer == 'l1_l2':
         regularizer = keras.regularizers.l1_l2(regularization_factor)
+    else:
+        regularizer = None
 
     # construct model layers
     layers = []
