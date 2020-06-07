@@ -8,10 +8,19 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
-from preprocess import preprocess
+from preprocess_simple import preprocess as preprocess_simple
+from preprocess_original import preprocess as preprocess_original
 from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 from evaluate import evaluate
+
+preprocessors = {
+    'simple': preprocess_simple,
+    'original': preprocess_original,
+}
+
+PREPROCESSOR = 'simple'
+preprocess = preprocessors[PREPROCESSOR]
 
 train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
 
@@ -30,10 +39,10 @@ ARCHITECTURE = "lstm"
 EMBEDDING_UNITS = 128
 RECURRENT_UNITS = 512
 NUM_RECURRENT_LAYERS = 1
-REGULARIZER = 'l2'
-REGULARIZATION_FACTOR = 0.01
-DROPOUT_RATE = 0
-RECURRENT_DROPOUT_RATE = 0
+REGULARIZER = None
+REGULARIZATION_FACTOR = 0
+DROPOUT_RATE = 0.2
+RECURRENT_DROPOUT_RATE = 0.2
 
 model = build_model(
     architecture = ARCHITECTURE,
@@ -79,6 +88,7 @@ history = model.fit(
 with open(experiment_dir + "/params.json", "w") as f:
     json.dump(
         {
+            "PREPROCESSOR": PREPROCESSOR,
             "ARCHITECTURE": ARCHITECTURE,
             "EMBEDDING_UNITS": EMBEDDING_UNITS,
             "RECURRENT_UNITS": RECURRENT_UNITS,
