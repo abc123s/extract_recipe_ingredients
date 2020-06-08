@@ -7,18 +7,20 @@ from bs4 import BeautifulSoup
 
 Tokenizer = tfds.features.text.Tokenizer
 
+
 def cleanNonstandardSlashes(s):
     slashes = [
-        u'\u2044', # fraction slash (⁄)
-        u'\u2215', # division slash (∕)
-        u'\uFF0F', # fullwidth solidus (／)
-        u'\u29F8', # big solidus (⧸)
+        u'\u2044',  # fraction slash (⁄)
+        u'\u2215',  # division slash (∕)
+        u'\uFF0F',  # fullwidth solidus (／)
+        u'\u29F8',  # big solidus (⧸)
     ]
 
     for slash in slashes:
         s = s.replace(slash, '/')
 
     return s
+
 
 def cleanUnicodeFractions(s):
     fractions = {
@@ -44,6 +46,7 @@ def cleanUnicodeFractions(s):
 
     return s
 
+
 def cleanCommonEscapeSequences(s):
     escape_sequences = [
         '\\n',
@@ -55,16 +58,19 @@ def cleanCommonEscapeSequences(s):
 
     return s
 
+
 def cleanHTMLTags(s):
     soup = BeautifulSoup(s, "html.parser")
 
     return soup.get_text()
+
 
 def cleanUnitAbbreviations(s):
     s = re.sub(r'(\d+)g', r'\1 grams', s)
     s = re.sub(r'(\d+)oz', r'\1 ounces', s)
 
     return s
+
 
 def clean(s):
     # remove any stray html tags (e.g. anchor tags)
@@ -86,6 +92,7 @@ def clean(s):
 
     return s
 
+
 # punctuation to split on
 SPLITTING_PUNCTUATION = [
     ',',
@@ -97,13 +104,14 @@ SPLITTING_PUNCTUATION = [
 # all allowed punctuation
 ALLOWED_PUNCTUATION = [
     *SPLITTING_PUNCTUATION,
-    '.', # decimal quantities
-    '-', # e.g. all-purpose flour
+    '.',  # decimal quantities
+    '-',  # e.g. all-purpose flour
 ]
 
 # regex to identify all banned characters
 BANNED_REGEX = rf'[^\w{re.escape("".join(ALLOWED_PUNCTUATION))}]'
 SPLIT_REGEX = rf'\s|([{re.escape("".join(SPLITTING_PUNCTUATION))})])'
+
 
 class IngredientPhraseTokenizer(Tokenizer):
     def tokenize(self, s):
@@ -113,12 +121,12 @@ class IngredientPhraseTokenizer(Tokenizer):
 
         # remove all non-word characters except a few approved types of punctuation
         # and replace with a space (so we split on those characters)
-        s = re.sub(BANNED_REGEX, ' ', s)
+        s = re.sub(BANNED_REGEX, ' ', s, flags=re.ASCII)
 
         # split into tokens on specific approved punctuations and white space
         tokens = re.split(SPLIT_REGEX, s)
 
         # Filter out empty strings
         tokens = [t for t in tokens if t]
-        
+
         return tokens
