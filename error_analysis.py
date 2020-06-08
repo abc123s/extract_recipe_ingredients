@@ -6,15 +6,23 @@ import random
 import tensorflow as tf
 from tensorflow import keras
 
-from preprocess import preprocess
+from preprocess_simple import preprocess as preprocess_simple
+from preprocess_original import preprocess as preprocess_original
 from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 
-experiment_dir = "experiments/20200602_2058_df1046b"
+experiment_dir = "experiments/20200530_0746_df1046b"
+
+preprocessors = {
+    'simple': preprocess_simple,
+    'original': preprocess_original,
+}
 
 # load experiment params
 with open(experiment_dir + "/params.json", "r") as f:
     params = json.load(f)
+
+preprocess = preprocessors[params.get("PREPROCESSOR", 'original')]
 
 # grab train and dev sets
 all_train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
