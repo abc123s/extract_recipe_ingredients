@@ -1,6 +1,8 @@
 import re
 import decimal
 import math
+import os
+import json
 
 import tensorflow as tf
 import tensorflow_datasets as tfds
@@ -12,6 +14,7 @@ import pandas as pd
 from tokenizer import IngredientPhraseTokenizer, clean
 
 ingredientPhraseTokenizer = IngredientPhraseTokenizer()
+
 
 def singularize(word):
     """
@@ -51,6 +54,7 @@ def singularize(word):
     else:
         return word
 
+
 def normalizeToken(s):
     """
     ToDo: FIX THIS. We used to use the pattern.en package to singularize words, but
@@ -58,6 +62,7 @@ def normalizeToken(s):
     point.
     """
     return singularize(s)
+
 
 def clumpFractions(s):
     """
@@ -70,18 +75,20 @@ def clumpFractions(s):
     """
     return re.sub(r'(\d+)\s+(\d)/(\d)', r'\1$\2/\3', s)
 
+
 def unclump(s):
     """
     Replacess $'s with spaces. The reverse of clumpFractions.
     """
     return re.sub(r'\$', " ", s)
 
+
 def constructRegexForNumberTokens(numberTokens):
     regex = r''
 
     prevNumberToken = None
     for index, numberToken in enumerate(numberTokens):
-        if index == 0: #or numberToken == "/" or prevNumberToken == "/":
+        if index == 0:  #or numberToken == "/" or prevNumberToken == "/":
             regex += numberToken
         elif numberToken == "/" or prevNumberToken == "/":
             regex += "\s*"
@@ -94,12 +101,11 @@ def constructRegexForNumberTokens(numberTokens):
 
     return regex
 
+
 def matchNumberTokensToOriginalString(numberTokenGroup, original_input):
     clean_input = clean(original_input)
-    match = re.search(
-        constructRegexForNumberTokens(numberTokenGroup),
-        clean_input
-    )
+    match = re.search(constructRegexForNumberTokens(numberTokenGroup),
+                      clean_input)
 
     if match:
         original_text = match.group()
@@ -111,6 +117,7 @@ def matchNumberTokensToOriginalString(numberTokenGroup, original_input):
         original_text = None
 
     return original_text
+
 
 def row_to_example(row):
     """Translates a row of labeled data into example format.
@@ -138,7 +145,8 @@ def row_to_example(row):
         else:
             if len(numberTokenGroup):
                 if numberTokenGroup[0].isdigit():
-                    original_text = matchNumberTokensToOriginalString(numberTokenGroup, original_input)
+                    original_text = matchNumberTokensToOriginalString(
+                        numberTokenGroup, original_input)
                     if original_text == None:
                         print('number tagging broke (continued)')
                         print(original_input)
@@ -146,7 +154,7 @@ def row_to_example(row):
                         grouped_token = "".join(numberTokenGroup)
                     else:
                         grouped_token = clumpFractions(original_text)
-                    
+
                     possible_tags = match_up(grouped_token, labels)
 
                     for numberToken in numberTokenGroup:
@@ -157,14 +165,15 @@ def row_to_example(row):
                         tagged_tokens.append((numberToken, possible_tags))
 
             numberTokenGroup = []
-            
+
             possible_tags = match_up(token, labels)
 
             tagged_tokens.append((token, possible_tags))
 
     if len(numberTokenGroup):
         if numberTokenGroup[0].isdigit():
-            original_text = matchNumberTokensToOriginalString(numberTokenGroup, original_input)
+            original_text = matchNumberTokensToOriginalString(
+                numberTokenGroup, original_input)
             if original_text == None:
                 print('number tagging broke (continued)')
                 print(original_input)
@@ -172,7 +181,7 @@ def row_to_example(row):
                 grouped_token = "".join(numberTokenGroup)
             else:
                 grouped_token = clumpFractions(original_text)
-            
+
             possible_tags = match_up(grouped_token, labels)
 
             for numberToken in numberTokenGroup:
@@ -182,7 +191,6 @@ def row_to_example(row):
                 possible_tags = match_up(numberToken, labels)
                 tagged_tokens.append((numberToken, possible_tags))
 
-
     tagged_tokens = add_prefixes(tagged_tokens)
 
     # select best label for each token
@@ -191,6 +199,7 @@ def row_to_example(row):
         example[1].append(best_tag(tags))
 
     return example
+
 
 def row_to_labels(row):
     """Extracts labels from a labelled ingredient data row.
@@ -257,8 +266,9 @@ def match_up(token, labels):
     for label_key in ['name', 'unit', 'qty', 'comment', 'range_end']:
         label_value = labels[label_key]
         if isinstance(label_value, str):
-            initial_label_tokens = ingredientPhraseTokenizer.tokenize(label_value)
-            
+            initial_label_tokens = ingredientPhraseTokenizer.tokenize(
+                label_value)
+
             final_label_tokens = []
             numberTokenGroup = []
             for label_token in initial_label_tokens:
@@ -267,26 +277,31 @@ def match_up(token, labels):
                 else:
                     if len(numberTokenGroup):
                         if numberTokenGroup[0].isdigit():
-                            original_text = matchNumberTokensToOriginalString(numberTokenGroup, label_value)
+                            original_text = matchNumberTokensToOriginalString(
+                                numberTokenGroup, label_value)
                             if original_text == None:
-                                final_label_tokens.append("".join(numberTokenGroup))
+                                final_label_tokens.append(
+                                    "".join(numberTokenGroup))
                             else:
-                                final_label_tokens.append(clumpFractions(original_text))
+                                final_label_tokens.append(
+                                    clumpFractions(original_text))
                         else:
                             for numberToken in numberTokenGroup:
                                 final_label_tokens.append(numberToken)
 
                     numberTokenGroup = []
-                    
+
                     final_label_tokens.append(label_token)
-            
+
             if len(numberTokenGroup):
                 if numberTokenGroup[0].isdigit():
-                    original_text = matchNumberTokensToOriginalString(numberTokenGroup, label_value)
+                    original_text = matchNumberTokensToOriginalString(
+                        numberTokenGroup, label_value)
                     if original_text == None:
                         final_label_tokens.append("".join(numberTokenGroup))
                     else:
-                        final_label_tokens.append(clumpFractions(original_text))
+                        final_label_tokens.append(
+                            clumpFractions(original_text))
                 else:
                     for numberToken in numberTokenGroup:
                         final_label_tokens.append(numberToken)
@@ -341,6 +356,7 @@ def best_tag(tags):
     # we have no idea what to guess
     return "OTHER"
 
+
 def csv_file_2_examples(file_name):
     data = pd.read_csv(file_name)
     data = data.fillna("")
@@ -353,24 +369,30 @@ def csv_file_2_examples(file_name):
 
     return examples
 
+
 # don't modify tags at all
 class TagTokenizer(Tokenizer):
     def tokenize(self, s):
         s = tf.compat.as_text(s)
         return [s]
 
+
 def build_encodings(examples):
-    vocab_list = sorted(set([word for example in examples for word in ingredientPhraseTokenizer.tokenize(example[0])]))
+    vocab_list = sorted(
+        set([
+            word for example in examples
+            for word in ingredientPhraseTokenizer.tokenize(example[0])
+        ]))
     tag_list = sorted(set([tag for example in examples for tag in example[1]]))
-    
-    word_encoder = TokenTextEncoder(
-        vocab_list, tokenizer = ingredientPhraseTokenizer
-    )
-    tag_encoder = TokenTextEncoder(
-        tag_list, oov_buckets = 0, tokenizer = TagTokenizer()
-    )
+
+    word_encoder = TokenTextEncoder(vocab_list,
+                                    tokenizer=ingredientPhraseTokenizer)
+    tag_encoder = TokenTextEncoder(tag_list,
+                                   oov_buckets=0,
+                                   tokenizer=TagTokenizer())
 
     return word_encoder, tag_encoder
+
 
 def build_dataset(examples, word_encoder, tag_encoder):
     def example_generator():
@@ -382,18 +404,33 @@ def build_dataset(examples, word_encoder, tag_encoder):
                 [tag_encoder.encode(tag)[0] for tag in example[1]],
             )
 
-    return tf.data.Dataset.from_generator(
-        example_generator,
-        output_types=(tf.int32, tf.int32)
-    )
+    return tf.data.Dataset.from_generator(example_generator,
+                                          output_types=(tf.int32, tf.int32))
+
+
+def load_examples(data_path, dataset_name):
+    examples_path = data_path + f"/{dataset_name}_examples.json"
+
+    # load examples if they've already been computed
+    if (os.path.exists(examples_path)):
+        with open(examples_path, "r") as f:
+            examples = json.load(f)
+
+    # otherwise compute and save examples from csv file
+    else:
+        examples = csv_file_2_examples(data_path + f"/{dataset_name}.csv")
+        with open(data_path + f"/{dataset_name}_examples.json", "w") as f:
+            json.dump(examples, f, indent=4)
+
+    return examples
+
 
 def preprocess(data_path):
-    train_examples = csv_file_2_examples(data_path + "/train.csv")
-    dev_examples = csv_file_2_examples(data_path + "/dev.csv")
-    test_examples = csv_file_2_examples(data_path + "/test.csv")
+    train_examples = load_examples(data_path, "train")
+    dev_examples = load_examples(data_path, "dev")
+    test_examples = load_examples(data_path, "test")
 
     word_encoder, tag_encoder = build_encodings(train_examples)
-
     '''
     encoding_path = data_path + "/encodings"
     word_encoder_path = encoding_path + "/word_encoder"
