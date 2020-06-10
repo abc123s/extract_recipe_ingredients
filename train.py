@@ -36,9 +36,6 @@ if PREPROCESSOR == 'combined':
         train_data.take(TRAIN_SIZE).shuffle(SHUFFLE_BUFFER_SIZE).padded_batch(
             128, padded_shapes=([None], [None], [None])))
 
-    for example in train_batches.take(1):
-        print(example)
-
 else:
     train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
     train_batches = (
