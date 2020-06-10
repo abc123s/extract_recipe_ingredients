@@ -10,18 +10,20 @@ from tensorflow import keras
 
 from preprocess_simple import preprocess as preprocess_simple
 from preprocess_original import preprocess as preprocess_original
+from preprocess_manual import preprocess as preprocess_manual
 from preprocess_combined import preprocess as preprocess_combined
 from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 from evaluate import evaluate
 
 preprocessors = {
-    'simple': preprocess_simple,
     'original': preprocess_original,
+    'simple': preprocess_simple,
+    'manual': preprocess_manual,
     'combined': preprocess_combined,
 }
 
-PREPROCESSOR = 'combined'
+PREPROCESSOR = 'manual'
 preprocess = preprocessors[PREPROCESSOR]
 
 MANUAL_EXAMPLE_WEIGHT = 1
