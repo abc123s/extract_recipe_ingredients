@@ -21,21 +21,29 @@ preprocessors = {
     'combined': preprocess_combined,
 }
 
-PREPROCESSOR = 'simple'
+PREPROCESSOR = 'combined'
 preprocess = preprocessors[PREPROCESSOR]
 
 MANUAL_EXAMPLE_WEIGHT = 1
-if PREPROCESSOR == 'combined':
-    train_data, dev_data, _, word_encoder, tag_encoder = preprocess(
-        "./data", MANUAL_EXAMPLE_WEIGHT)
-else:
-    train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
 
 TRAIN_SIZE = 169207
 SHUFFLE_BUFFER_SIZE = 200000
-train_batches = (
-    train_data.take(TRAIN_SIZE).shuffle(SHUFFLE_BUFFER_SIZE).padded_batch(
-        128, padded_shapes=([None], [None])))
+
+if PREPROCESSOR == 'combined':
+    train_data, dev_data, _, word_encoder, tag_encoder = preprocess(
+        "./data", MANUAL_EXAMPLE_WEIGHT)
+    train_batches = (
+        train_data.take(TRAIN_SIZE).shuffle(SHUFFLE_BUFFER_SIZE).padded_batch(
+            128, padded_shapes=([None], [None], [None])))
+
+    for example in train_batches.take(1):
+        print(example)
+
+else:
+    train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
+    train_batches = (
+        train_data.take(TRAIN_SIZE).shuffle(SHUFFLE_BUFFER_SIZE).padded_batch(
+            128, padded_shapes=([None], [None])))
 
 dev_batches = dev_data.padded_batch(128, padded_shapes=([None], [None]))
 

@@ -13,7 +13,7 @@ def build_weighted_dataset(examples_and_weights, word_encoder, tag_encoder):
     weighted_examples = []
     for examples, weight in examples_and_weights:
         for example in examples:
-            weighted_examples.append((example[0], example[1], weight))
+            weighted_examples.append((example[0], example[1], [weight]))
 
     def example_generator():
         for example in weighted_examples:
@@ -24,7 +24,8 @@ def build_weighted_dataset(examples_and_weights, word_encoder, tag_encoder):
                     for tag in example[1]], example[2])
 
     return tf.data.Dataset.from_generator(example_generator,
-                                          output_types=(tf.int32, tf.int32))
+                                          output_types=(tf.int32, tf.int32,
+                                                        tf.int32))
 
 
 def preprocess(data_path, manual_weight=5):
