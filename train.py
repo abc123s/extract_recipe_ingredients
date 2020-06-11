@@ -16,11 +16,18 @@ from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 from evaluate import evaluate
 
+# specify what data to use, and
+# preprocess the data
+# (tokenize and convert each token to an integer)
 preprocessors = {
-    'original': preprocess_original,
-    'simple': preprocess_simple,
-    'manual': preprocess_manual,
-    'combined': preprocess_combined,
+    'original':
+    preprocess_original,  # nyt dataset with original tokenization method
+    'simple':
+    preprocess_simple,  # nyt dataset with a simplier tokenization method
+    'manual':
+    preprocess_manual,  # manually tagged dataset with same tokenization as 'simple
+    'combined':
+    preprocess_combined,  # combined dataset (nyt and manually tagged)
 }
 
 PREPROCESSOR = 'manual'
@@ -28,9 +35,12 @@ preprocess = preprocessors[PREPROCESSOR]
 
 MANUAL_EXAMPLE_WEIGHT = 1
 
+# how many training examples to train on - 169207 is the full nyt dataset
 TRAIN_SIZE = 169207
+# shuffle buffer - needs to be larger than TRAIN_SIZE for a perfect shuffle
 SHUFFLE_BUFFER_SIZE = 200000
 
+# load data and encoders, separate data into batches and pad
 if PREPROCESSOR == 'combined':
     train_data, dev_data, _, word_encoder, tag_encoder = preprocess(
         "./data", MANUAL_EXAMPLE_WEIGHT)
@@ -50,11 +60,11 @@ dev_batches = dev_data.padded_batch(128, padded_shapes=([None], [None]))
 ARCHITECTURE = "lstm"
 EMBEDDING_UNITS = 128
 RECURRENT_UNITS = 512
-NUM_RECURRENT_LAYERS = 1
+NUM_RECURRENT_LAYERS = 2
 REGULARIZER = None
 REGULARIZATION_FACTOR = 0
-DROPOUT_RATE = 0.2
-RECURRENT_DROPOUT_RATE = 0.2
+DROPOUT_RATE = 0
+RECURRENT_DROPOUT_RATE = 0
 
 model = build_model(
     architecture=ARCHITECTURE,
