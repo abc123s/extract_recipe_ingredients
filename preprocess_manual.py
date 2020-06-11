@@ -17,7 +17,7 @@ def load_examples(data_path, dataset_name):
     return examples
 
 
-def preprocess(data_path, examples_for_vocab):
+def preprocess(data_path, examples_for_vocab=None):
     train_examples = load_examples(data_path, "manually_tagged_train")
     dev_examples = load_examples(data_path, "manually_tagged_dev")
 
