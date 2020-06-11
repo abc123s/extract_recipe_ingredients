@@ -1,3 +1,9 @@
+'''
+Preprocess NYT data using a simplier tokenization method than the one used by the
+ingredient-phrase-tagger repo. A large portion of this code is borrowed from that repo,
+with minor modification - the repo can be found here:
+https://github.com/nytimes/ingredient-phrase-tagger
+'''
 import re
 import decimal
 import math
