@@ -6,26 +6,68 @@ import random
 import tensorflow as tf
 from tensorflow import keras
 
-from preprocess_simple import preprocess as preprocess_simple
-from preprocess_original import preprocess as preprocess_original
+from preprocess_simple import preprocess as preprocess_simple, load_examples as load_simple_examples
+from preprocess_original import preprocess as preprocess_original, crfFile2Examples
+from preprocess_manual import preprocess as preprocess_manual, load_examples as load_manual_examples
+from preprocess_combined import preprocess as preprocess_combined
 from build_model import build_model
 from masked_accuracy import SparseCategoricalAccuracyMaskZeros
 
-experiment_dir = "experiments/20200530_0746_df1046b"
+# modify this line to change which experiment directory you wish to 
+# run an error analysis on
+experiment_dir = "experiments/20200610_1547_6184893"
 
 preprocessors = {
     'simple': preprocess_simple,
     'original': preprocess_original,
+    'manual': preprocess_manual,
+    'combined': preprocess_combined,
+}
+
+# used when running error analysis on a fine-tuned model
+def load_original():
+    return crfFile2Examples("./data/train.crf")
+
+
+def load_simple():
+    return load_simple_examples("./data", "train")
+
+
+def load_combined():
+    nyt_train_examples = load_simple_examples("./data", "train")
+
+    manual_train_examples = load_manual_examples("./data",
+                                                 "manually_tagged_train")
+    return [
+        *nyt_train_examples,
+        *manual_train_examples,
+    ]
+
+
+def load_manual():
+    return load_manual_examples("./data", "train")
+
+
+example_loader = {
+    'original': load_original,
+    'simple': load_simple,
+    'manual': load_manual,
+    'combined': load_combined,
 }
 
 # load experiment params
 with open(experiment_dir + "/params.json", "r") as f:
     params = json.load(f)
 
-preprocess = preprocessors[params.get("PREPROCESSOR", 'original')]
-
-# grab train and dev sets
-all_train_data, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
+# grab dev set to do error analysis on, making sure to properly handle
+# fine-tuned models (which use two different datasets)
+if params.get("ORIGINAL_EXPERIMENT_DIR", None):
+    original_examples = example_loader[params.get("PREPROCESSOR", "original")]()
+    _, dev_data, _, word_encoder, tag_encoder = preprocess_manual(
+        "./data", original_examples)
+else:
+    preprocess = preprocessors[params.get("PREPROCESSOR", 'original')]
+    _, dev_data, _, word_encoder, tag_encoder = preprocess("./data")
 
 # build and compile model based on experiment params:
 model = build_model(
